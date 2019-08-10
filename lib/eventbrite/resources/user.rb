@@ -1,9 +1,18 @@
 module Eventbrite
   class User < APIResource
-    ['events', 'orders', 'owned_events', 'owned_event_orders', 'owned_event_attendees', 'venues', 'organizers'].each do |m|
-      define_singleton_method m do |params={}, token=nil|
+    [
+      "events",
+      "orders",
+      "owned_events",
+      "owned_event_orders",
+      "owned_event_attendees",
+      "venues",
+      "organizers",
+      "organizations",
+    ].each do |m|
+      define_singleton_method m do |params = {}, token = nil|
         unless user_id = params.delete(:user_id)
-          raise InvalidRequestError.new('No user_id provided.')
+          raise InvalidRequestError.new("No user_id provided.")
         end
 
         response, token = Eventbrite.request(:get, self.send("#{m}_url", user_id), token, params)

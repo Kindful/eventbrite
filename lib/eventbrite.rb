@@ -1,43 +1,44 @@
-require 'rest_client'
+require "rest_client"
 
 # Version
-require 'eventbrite/version'
+require "eventbrite/version"
 
 # Util
-require 'eventbrite/util'
+require "eventbrite/util"
 
 # Base
-require 'eventbrite/eventbrite_object'
-require 'eventbrite/api_resource'
-require 'eventbrite/api_array_resource'
+require "eventbrite/eventbrite_object"
+require "eventbrite/api_resource"
+require "eventbrite/api_array_resource"
 
 # Resources
-require 'eventbrite/resources/event'
-require 'eventbrite/resources/category'
-require 'eventbrite/resources/subcategory'
-require 'eventbrite/resources/user'
-require 'eventbrite/resources/attendee'
-require 'eventbrite/resources/order'
-require 'eventbrite/resources/discount'
-require 'eventbrite/resources/format'
-require 'eventbrite/resources/access_code'
-require 'eventbrite/resources/ticket_class'
-require 'eventbrite/resources/transfer'
-require 'eventbrite/resources/team'
-require 'eventbrite/resources/contact_list'
-require 'eventbrite/resources/venue'
-require 'eventbrite/resources/webhook'
+require "eventbrite/resources/event"
+require "eventbrite/resources/category"
+require "eventbrite/resources/subcategory"
+require "eventbrite/resources/user"
+require "eventbrite/resources/attendee"
+require "eventbrite/resources/order"
+require "eventbrite/resources/discount"
+require "eventbrite/resources/format"
+require "eventbrite/resources/access_code"
+require "eventbrite/resources/ticket_class"
+require "eventbrite/resources/transfer"
+require "eventbrite/resources/team"
+require "eventbrite/resources/contact_list"
+require "eventbrite/resources/venue"
+require "eventbrite/resources/organization"
+require "eventbrite/resources/webhook"
 
 # Errors
-require 'eventbrite/errors/eventbrite_error'
-require 'eventbrite/errors/api_error'
-require 'eventbrite/errors/authentication_error'
-require 'eventbrite/errors/invalid_request_error'
+require "eventbrite/errors/eventbrite_error"
+require "eventbrite/errors/api_error"
+require "eventbrite/errors/authentication_error"
+require "eventbrite/errors/invalid_request_error"
 
 module Eventbrite
   DEFAULTS = {
-    api_base: 'https://www.eventbriteapi.com',
-    api_version: 'v3'
+    api_base: "https://www.eventbriteapi.com",
+    api_version: "v3",
   }
 
   class << self
@@ -52,11 +53,11 @@ module Eventbrite
     end
   end
 
-  def self.api_url(url='')
+  def self.api_url(url = "")
     "#{api_base}/#{api_version}#{url}"
   end
 
-  def self.request(method, url, token, params={})
+  def self.request(method, url, token, params = {})
     unless token ||= self.token
       raise AuthenticationError.new('No access token provided. Set your token using "Eventbrite.token = <access-token>"."')
     end
@@ -66,7 +67,7 @@ module Eventbrite
     case method.to_s.downcase.to_sym
     when :get
       # Make params into GET parameters
-      url += "#{URI.parse(url).query ? '&' : '?'}#{uri_encode(params)}" if params && params.any?
+      url += "#{URI.parse(url).query ? "&" : "?"}#{uri_encode(params)}" if params && params.any?
       payload = nil
     else
       payload = uri_encode(params)
@@ -78,7 +79,7 @@ module Eventbrite
       open_timeout: 30,
       payload: payload,
       url: url,
-      timeout: 120
+      timeout: 120,
     }
 
     begin
@@ -94,23 +95,23 @@ module Eventbrite
     [parse(response), token]
   end
 
-private
+  private
 
   def self.uri_encode(params)
-    Util.flatten_params(params).map { |k,v| "#{k}=#{Util.url_encode(v)}" }.join('&')
+    Util.flatten_params(params).map { |k, v| "#{k}=#{Util.url_encode(v)}" }.join("&")
   end
 
   def self.request_headers(token)
     headers = {
       user_agent: "Eventbrite RubyBindings/#{Eventbrite::VERSION}",
-      authorization: "Bearer #{token}"
+      authorization: "Bearer #{token}",
     }
 
     headers
   end
 
   def self.execute_request(opts)
-    RestClient::Request.execute(opts){ |response, request, result, &block|
+    RestClient::Request.execute(opts) { |response, request, result, &block|
       if [301, 302, 307].include? response.code
         response.follow_redirection(&block)
       else
